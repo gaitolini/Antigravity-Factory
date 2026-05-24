@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# FÁBRICA ANTIGRAVITY - SCRIPT DE INICIALIZAÇÃO BASH (V2.0)
+# FÁBRICA ANTIGRAVITY - SCRIPT DE INICIALIZAÇÃO BASH (V2.1)
 # Repositório: gaitolini/antigravity-factory
 # ==============================================================================
 
@@ -15,13 +15,12 @@ PURPLE='\033[0;35m'
 NC='\033[0m' # Sem Cor
 
 echo -e "${PURPLE}============================================================${NC}"
-echo -e "${CYAN}   🚀  Fábrica de Estrutura Antigravity v2.0 - Inicializador 🚀   ${NC}"
+echo -e "${CYAN}   🚀  Fábrica de Estrutura Antigravity v2.1 - Inicializador 🚀   ${NC}"
 echo -e "${PURPLE}============================================================${NC}"
 
 # Valores padrão
 PROJECT_NAME="Novo Projeto Antigravity"
 PLUGIN_NAME=""
-TECH_STACK=""
 INTERACTIVE=false
 LAYOUT="global"      # global ou encapsulated
 GIT_INIT=false
@@ -34,8 +33,6 @@ show_help() {
     echo -e "Opções:"
     echo -e "  -n, --name <nome>      Nome do projeto (Padrão: '$PROJECT_NAME')"
     echo -e "  -pl, --plugin <nome>   Nome do plugin a ser criado (opcional)"
-    echo -e "  -d, --delphi           Configura templates específicos para Delphi"
-    echo -e "  -p, --python           Configura templates específicos para Python"
     echo -e "  -e, --encapsulated     Usa estrutura encapsulada (separada em .agents/ e .projeto/)"
     echo -e "  -g, --git              Inicializa repositórios Git automaticamente"
     echo -e "  -s, --skills <l|g|n>   Pacote de skills: (l)ocal, (g)lobal ou (n)enhum"
@@ -43,7 +40,7 @@ show_help() {
     echo -e "  -h, --help             Exibe esta mensagem de ajuda"
     echo -e ""
     echo -e "Exemplo rápido:"
-    echo -e "  curl -sSL https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.sh | bash -s -- --delphi --encapsulated --git --skills l"
+    echo -e "  curl -sSL https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.sh | bash -s -- --encapsulated --git --skills l"
 }
 
 # Parse de argumentos
@@ -51,8 +48,6 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         -n|--name) PROJECT_NAME="$2"; shift ;;
         -pl|--plugin) PLUGIN_NAME="$2"; shift ;;
-        -d|--delphi) TECH_STACK="delphi" ;;
-        -p|--python) TECH_STACK="python" ;;
         -e|--encapsulated) LAYOUT="encapsulated" ;;
         -g|--git) GIT_INIT=true ;;
         -s|--skills) 
@@ -114,20 +109,8 @@ if [ "$INTERACTIVE" = true ]; then
         SKILLS_PACK="local"
     fi
 
-    # 5. Stack de Tecnologia
-    echo -e "\nSelecione uma stack de tecnologia para regras:"
-    echo -e "  1) Nenhuma (Genérico)"
-    echo -e "  2) Delphi (Windows-1252, ERP, Firebird)"
-    echo -e "  3) Python (venv, pip/poetry, Clean Code)"
-    read -p "Opção (1-3) [1]: " opt_tech
-    case $opt_tech in
-        2) TECH_STACK="delphi" ;;
-        3) TECH_STACK="python" ;;
-        *) TECH_STACK="" ;;
-    esac
-
-    # 6. Plugin Opcional
-    read -p "Deseja inicializar um plugin específico? (Deixe em branco para nenhum): " temp_plugin
+    # 5. Plugin Opcional
+    read -p "\nDeseja inicializar um plugin específico? (Deixe em branco para nenhum): " temp_plugin
     [ -n "$temp_plugin" ] && PLUGIN_NAME="$temp_plugin"
 fi
 
@@ -179,50 +162,18 @@ HOOKS_CONTENT='{
 }'
 create_if_not_exists "$AGENTS_DIR/hooks.json" "$HOOKS_CONTENT"
 
-# Regras do Projeto
-if [ "$TECH_STACK" = "delphi" ]; then
-    RULES_CONTENT="# Regras do Projeto - Delphi (ANSI Windows-1252)
-
-Estas regras orientam o Agente de IA no desenvolvimento deste workspace.
-
-## 1. Padrões de Codificação e Arquivos
-- **Codificação Obrigatória**: Todos os arquivos Delphi (\`.pas\`, \`.dfm\`, \`.dpr\`, \`.dproj\`) e scripts SQL devem ser codificados em **Windows-1252 (ANSI)** para compatibilidade com o Delphi 10.3+.
-- **Arquivos de IA/Markdown**: Toda a documentação gerada pela IA (\`.md\`, \`.txt\`) deve ser codificada em **UTF-8**.
-- **Nomenclatura**:
-  - Units: \`UFrmCliente.pas\` (Views), \`UDMCliente.pas\` (DataModules), \`UControllerCliente.pas\` (Controllers).
-  - Componentes: Prefixo minúsculo de 3 letras (ex: \`edtNome\`, \`btnSalvar\`, \`qryConsulta\`).
-
-## 2. Padrão Arquitetural
-- Utilize o padrão **MVC (Model-View-Controller)** ou **MVVM**.
-- Regras de negócio NUNCA devem estar acopladas diretamente à View (formulário).
-- Utilize injeção de dependências e interfaces para comunicação desacoplada.
-
-## 3. Segurança e Banco de Dados (Firebird 3.0)
-- Toda consulta SQL dinâmica deve usar **Parâmetros** (\`Params\`) para evitar SQL Injection.
-- Controle rigoroso de escopo de conexões (abrir transação o mais tarde possível, fechar imediatamente após uso)."
-elif [ "$TECH_STACK" = "python" ]; then
-    RULES_CONTENT="# Regras do Projeto - Python (Clean Code)
+# Regras do Projeto (Genéricas e Limpas)
+RULES_CONTENT="# Regras do Projeto - $PROJECT_NAME
 
 Estas regras guiam o Agente de IA no desenvolvimento deste workspace.
 
-## 1. Padrões de Código
-- **Estilo**: Siga rigorosamente a **PEP 8**. Use \`black\`, \`flake8\` ou \`ruff\` para formatação automática.
-- **Tipagem**: Utilize hints de tipagem (Type Hints) em todas as definições de funções e classes.
-- **Ambiente Virtual**: Sempre verifique se o ambiente virtual (\`.venv\`) está ativo antes de propor execuções de comandos de instalação.
+## 1. Padrões Gerais de Desenvolvimento
+- **Clareza e Simplicidade**: Mantenha o código limpo, documentado e siga os princípios SOLID e DRY.
+- **Documentação de Agente**: Toda a documentação gerada pelo agente ou IA (\`.md\`, \`.txt\`) deve ser codificada em **UTF-8 (Sem BOM)**.
+- **Organização**: Antes de realizar grandes modificações ou arquiteturas, crie e proponha um plano de implementação.
 
-## 2. Estrutura do Projeto
-- Use estruturas modulares limpas (ex: \`src/\` contendo a lógica principal).
-- Separe configurações de ambiente em arquivos \`.env\` (nunca suba chaves secretas para o repositório)."
-else
-    RULES_CONTENT="# Regras do Projeto - $PROJECT_NAME
-
-Descreva aqui as restrições globais ou estilo de código para o Agent seguir.
-
-## Diretrizes Padrão
-1. Mantenha o código limpo, documentado e siga os princípios SOLID.
-2. Toda documentação gerada pelo agente deve usar o formato Markdown (UTF-8).
-3. Antes de realizar grandes alterações, proponha um plano detalhado."
-fi
+## 2. Tratamento de Erros e Logs
+- Nunca silencie exceções silenciosamente. Implemente tratamento de exceções robusto e registre as falhas usando logs nativos ou adequados."
 create_if_not_exists "$AGENTS_DIR/rules/regras_projeto.md" "$RULES_CONTENT"
 
 # Skill básica
@@ -232,12 +183,12 @@ description: Fornece o contexto e diretrizes principais para o desenvolvimento d
 ---
 # Instruções Core - $PROJECT_NAME
 
-Esta skill auxilia o agente a entender a essência do projeto e as ferramentas disponíveis.
+Esta skill auxilia o agente a entender a essência do projeto e as ferramentas disponíveis neste workspace.
 
 ## Diretrizes de Resolução de Tarefas
-1. Sempre leia o arquivo \`.agents/rules/regras_projeto.md\` antes de propor alterações.
-2. Divida tarefas grandes em pequenos passos e marque-as como concluídas no arquivo \`task.md\` se aplicável.
-3. Se houver alguma dúvida conceitual, pergunte antes de prosseguir com mudanças de infraestrutura."
+1. Sempre leia o arquivo \`.agents/rules/regras_projeto.md\` antes de propor alterações de código.
+2. Divida tarefas complexas em passos menores e registre-as no arquivo \`task.md\` se necessário para controle do progresso.
+3. Solicite feedbacks ou esclarecimentos conceituais ao usuário antes de alterar estruturas de infraestrutura."
 create_if_not_exists "$AGENTS_DIR/skills/core-skill/SKILL.md" "$SKILL_CONTENT"
 
 # Se houver plugin
@@ -275,11 +226,10 @@ fi
 # ==========================================
 # 3. CRIAÇÃO DOS ARQUIVOS DO WORKSPACE
 # ==========================================
+CLEAN_FILE_NAME=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
+
 if [ "$LAYOUT" = "encapsulated" ]; then
     echo -e "\n${BLUE}⚙️ 3. Gerando arquivo do Workspace da IDE (.code-workspace)...${NC}"
-    
-    # Criar o nome do arquivo limpo (snake_case)
-    CLEAN_FILE_NAME=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
     
     WORKSPACE_CONTENT="{
   \"folders\": [
@@ -325,49 +275,66 @@ if [ "$SKILLS_PACK" != "none" ]; then
 fi
 
 # ==========================================
-# 5. CONFIGURAÇÃO DE VERSIONAMENTO (GIT)
+# 5. CONFIGURAÇÃO DE VERSIONAMENTO (GIT) E READMES
 # ==========================================
 if [ "$GIT_INIT" = true ]; then
-    echo -e "\n${BLUE}🐙 5. Inicializando repositório Git...${NC}"
+    echo -e "\n${BLUE}🐙 5. Inicializando repositório Git e gerando documentação inicial...${NC}"
     
     if [ "$LAYOUT" = "encapsulated" ]; then
-        # Git isolado na pasta .agents
+        # 1. README Global na Raiz
+        ROOT_README="# Workspace - $PROJECT_NAME
+
+Este workspace está estruturado de forma encapsulada no padrão Google Antigravity.
+
+## Estrutura de Pastas
+- \`.agents/\`: Diretrizes, regras, plugins e skills que orientam o Agente de IA.
+- \`.projeto/\`: Arquivos de código-fonte reais do projeto.
+
+Para abrir de forma integrada na IDE, clique duas vezes no arquivo **${CLEAN_FILE_NAME}.code-workspace**."
+        create_if_not_exists "README.md" "$ROOT_README"
+
+        # 2. Git isolado na pasta .agents
         echo -e "  ${CYAN}Inicializando Git na pasta $AGENTS_DIR...${NC}"
         (
             cd "$AGENTS_DIR" || exit
             git init
             create_if_not_exists ".gitignore" "node_modules/\n*.log\n.DS_Store"
+            
+            AGENTS_README="# Agents - $PROJECT_NAME
+
+Este diretório contém a inteligência e as regras de desenvolvimento que o seu Agente de IA lê e obedece localmente.
+
+- \`rules/\`: Diretrizes e padrões arquiteturais.
+- \`skills/\`: Instruções específicas para resolver tarefas complexas.
+- \`hooks.json\`: Validações de ferramentas pré/pós execução."
+            create_if_not_exists "README.md" "$AGENTS_README"
         )
         
-        # Git isolado na pasta .projeto
+        # 3. Git isolado na pasta .projeto
         echo -e "  ${CYAN}Inicializando Git na pasta $PROJECT_DIR...${NC}"
         (
             cd "$PROJECT_DIR" || exit
             git init
+            create_if_not_exists ".gitignore" "node_modules/\n*.log\n.env\n.DS_Store"
             
-            # Gitignore customizado por stack
-            if [ "$TECH_STACK" = "delphi" ]; then
-                GITIGNORE_CONTENT="__history/\n*.dcu\n*.identcache\n*.local\n*.~*\n*.stat\nWin32/\nWin64/\nDebug/\nRelease/"
-            elif [ "$TECH_STACK" = "python" ]; then
-                GITIGNORE_CONTENT=".venv/\n__pycache__/\n*.pyc\n.pytest_cache/\n.env\n*.log"
-            else
-                GITIGNORE_CONTENT="node_modules/\n*.log\n.env\n.DS_Store"
-            fi
-            create_if_not_exists ".gitignore" "$GITIGNORE_CONTENT"
+            PROJECT_README="# Projeto - $PROJECT_NAME
+
+Este diretório contém os arquivos de código-fonte reais do seu projeto. Insira seus arquivos, estruturas e códigos diretamente aqui."
+            create_if_not_exists "README.md" "$PROJECT_README"
         )
     else
         # Git global na raiz
         git init
+        create_if_not_exists ".gitignore" ".agents/plugins/*/node_modules/\nnode_modules/\n*.log\n.env\n.DS_Store"
         
-        # Gitignore customizado por stack
-        if [ "$TECH_STACK" = "delphi" ]; then
-            GITIGNORE_CONTENT=".agents/plugins/*/node_modules/\n__history/\n*.dcu\n*.identcache\n*.local\n*.~*\n*.stat\nWin32/\nWin64/\nDebug/\nRelease/"
-        elif [ "$TECH_STACK" = "python" ]; then
-            GITIGNORE_CONTENT=".agents/plugins/*/node_modules/\n.venv/\n__pycache__/\n*.pyc\n.pytest_cache/\n.env\n*.log"
-        else
-            GITIGNORE_CONTENT=".agents/plugins/*/node_modules/\nnode_modules/\n*.log\n.env\n.DS_Store"
-        fi
-        create_if_not_exists ".gitignore" "$GITIGNORE_CONTENT"
+        GLOBAL_README="# $PROJECT_NAME
+
+Este projeto utiliza a estrutura padrão Google Antigravity para guiar o desenvolvimento com Inteligência Artificial.
+
+## Estrutura do Workspace
+- \`.agents/\`: Contém as regras, hooks e habilidades do Agente de IA.
+- O código-fonte e arquivos do projeto residem diretamente na raiz."
+        create_if_not_exists "README.md" "$GLOBAL_README"
     fi
 fi
 

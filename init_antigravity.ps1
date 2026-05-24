@@ -1,5 +1,5 @@
 # ==============================================================================
-# ANTIGRAVITY FACTORY - POWERSHELL INITIALIZER (V2.0 - PURE ASCII COMPATIBILITY)
+# ANTIGRAVITY FACTORY - POWERSHELL INITIALIZER (V2.1 - PURE ASCII COMPATIBILITY)
 # Repository: gaitolini/antigravity-factory
 # ==============================================================================
 
@@ -10,12 +10,6 @@ param (
 
     [Parameter(Mandatory=$false)]
     [string]$PluginName = "",
-
-    [Parameter(Mandatory=$false)]
-    [switch]$Delphi,
-
-    [Parameter(Mandatory=$false)]
-    [switch]$Python,
 
     [Parameter(Mandatory=$false)]
     [switch]$Encapsulated,
@@ -31,7 +25,7 @@ param (
 )
 
 Write-Host "============================================================" -ForegroundColor Magenta
-Write-Host "   [*] Antigravity Structure Factory v2.0 - Initializer [*]" -ForegroundColor Cyan
+Write-Host "   [*] Antigravity Structure Factory v2.1 - Initializer [*]" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Magenta
 
 # Se o usuario escolheu interativo
@@ -76,30 +70,10 @@ if ($Interactive) {
         $SkillsPack = "local"
     }
 
-    # Stack de tecnologia
-    Write-Host "`nSelecione uma stack de tecnologia para regras:"
-    Write-Host "  1) Nenhuma (Generico)"
-    Write-Host "  2) Delphi (Windows-1252, ERP, Firebird)"
-    Write-Host "  3) Python (venv, pip/poetry, Clean Code)"
-    $optTech = Read-Host "Opcao (1-3) [1]"
-    
-    if ($optTech -eq "2") {
-        $Delphi = $true
-        $Python = $false
-    } elseif ($optTech -eq "3") {
-        $Python = $true
-        $Delphi = $false
-    }
-
     # Plugin especifico
     $tempPlugin = Read-Host "`nDeseja inicializar um plugin especifico? (Deixe em branco para nenhum)"
     if ($tempPlugin) { $PluginName = $tempPlugin }
 }
-
-# Definir stack de tecnologia
-$techStack = "generic"
-if ($Delphi) { $techStack = "delphi" }
-if ($Python) { $techStack = "python" }
 
 # Definir pastas base de acordo com layout
 if ($Encapsulated) {
@@ -159,55 +133,19 @@ $hooksContent = @(
 ) -join [Environment]::NewLine
 Create-If-Not-Exists -Path "$agentsDir/hooks.json" -Content $hooksContent
 
-if ($techStack -eq "delphi") {
-    $rulesContent = @(
-        "# Regras do Projeto - Delphi (ANSI Windows-1252)",
-        "",
-        "Estas regras orientam o Agente de IA no desenvolvimento deste workspace.",
-        "",
-        "## 1. Padroes de Codificacao e Arquivos",
-        "- **Codificacao Obrigatoria**: Todos os arquivos Delphi (\`.pas\`, \`.dfm\`, \`.dpr\`, \`.dproj\`) e scripts SQL devem ser codificados em **Windows-1252 (ANSI)** para compatibilidade com o Delphi 10.3+.",
-        "- **Arquivos de IA/Markdown**: Toda a documentacao gerada pela IA (\`.md\`, \`.txt\`) deve ser codificada em **UTF-8**.",
-        "- **Nomenclatura**:",
-        "  - Units: \`UFrmCliente.pas\` (Views), \`UDMCliente.pas\` (DataModules), \`UControllerCliente.pas\` (Controllers).",
-        "  - Componentes: Prefixo minusculo de 3 letras (ex: \`edtNome\`, \`btnSalvar\`, \`qryConsulta\`).",
-        "",
-        "## 2. Padrao Arquitetural",
-        "- Utilize o padrao **MVC (Model-View-Controller)** ou **MVVM**.",
-        "- Regras de negocio NUNCA devem estar acopladas diretamente a View (formulario).",
-        "- Utilize injecao de dependencias e interfaces para comunicacao desacoplada.",
-        "",
-        "## 3. Seguranca e Banco de Dados (Firebird 3.0)",
-        "- Toda consulta SQL dinamica deve usar **Parametros** (\`Params\`) para evitar SQL Injection.",
-        "- Controle rigoroso de escopo de conexoes (abrir transacao o mais tarde possivel, fechar imediatamente apos uso)."
-    ) -join [Environment]::NewLine
-} elseif ($techStack -eq "python") {
-    $rulesContent = @(
-        "# Regras do Projeto - Python (Clean Code)",
-        "",
-        "Estas regras guiam o Agente de IA no desenvolvimento deste workspace.",
-        "",
-        "## 1. Padroes de Code",
-        "- **Estilo**: Siga rigorosamente a **PEP 8**. Use \`black\`, \`flake8\` ou \`ruff\` para formatacao automatica.",
-        "- **Tipagem**: Utilize hints de tipagem (Type Hints) em todas as definicoes de funcoes e classes.",
-        "- **Ambiente Virtual**: Sempre verifique se o ambiente virtual (\`.venv\`) está ativo antes de propor execucoes de comandos de instalacao.",
-        "",
-        "## 2. Estrutura do Projeto",
-        "- Use estruturas modulares limpas (ex: \`src/\` contendo a logica principal).",
-        "- Separe configuracoes de ambiente em arquivos \`.env\` (nunca suba chaves secretas para o repositorio)."
-    ) -join [Environment]::NewLine
-} else {
-    $rulesContent = @(
-        "# Regras do Projeto - $ProjectName",
-        "",
-        "Descreva aqui as restricoes globais ou estilo de codigo para o Agent seguir.",
-        "",
-        "## Diretrizes Padrao",
-        "1. Mantenha o codigo limpo, documentado e siga os principios SOLID.",
-        "2. Toda documentacao gerada pelo agente deve usar o formato Markdown (UTF-8).",
-        "3. Antes de realizar grandes alteracoes, proponha um plano detalhado."
-    ) -join [Environment]::NewLine
-}
+$rulesContent = @(
+    "# Regras do Projeto - $ProjectName",
+    "",
+    "Estas regras orientam o Agente de IA no desenvolvimento deste workspace.",
+    "",
+    "## 1. Padroes Gerais de Desenvolvimento",
+    "- **Clareza e Simplicidade**: Mantenha o codigo limpo, documentado e siga os principios SOLID e DRY.",
+    "- **Documentacao de Agente**: Toda a documentacao gerada pelo agente ou IA (\`.md\`, \`.txt\`) deve ser codificada em **UTF-8 (Sem BOM)**.",
+    "- **Organizacao**: Antes de realizar grandes modificacoes ou arquiteturas, crie e proponha um plano de implementacao.",
+    "",
+    "## 2. Tratamento de Erros e Logs",
+    "- Nunca silencie excecoes silenciosamente. Implemente tratamento de excecoes robusto e registre as falhas usando logs nativos ou adequados."
+) -join [Environment]::NewLine
 Create-If-Not-Exists -Path "$agentsDir/rules/regras_projeto.md" -Content $rulesContent
 
 $skillContent = @(
@@ -217,12 +155,12 @@ $skillContent = @(
     "---",
     "# Instrucoes Core - $ProjectName",
     "",
-    "Esta skill auxilia o agente a entender a essencia do projeto e as ferramentas disponiveis.",
+    "Esta skill auxilia o agente a entender a essencia do projeto e as ferramentas disponiveis neste workspace.",
     "",
     "## Diretrizes de Resolucao de Tarefas",
-    "1. Sempre leia o arquivo \`.agents/rules/regras_projeto.md\` antes de propor alteracoes.",
-    "2. Divida tarefas grandes em pequenos passos e marque-as como concluidas no arquivo \`task.md\` se aplicavel.",
-    "3. Se houver alguma duvida conceitual, pergunte antes de prosseguir com mudancas de infraestrutura."
+    "1. Sempre leia o arquivo \`.agents/rules/regras_projeto.md\` antes de propor alteracoes de codigo.",
+    "2. Divida tarefas complexas em passos menores e registre-as no arquivo \`task.md\` se necessario para controle do progresso.",
+    "3. Solicite feedbacks ou esclarecimentos conceituais ao usuario antes de alterar estruturas de infraestrutura."
 ) -join [Environment]::NewLine
 Create-If-Not-Exists -Path "$agentsDir/skills/core-skill/SKILL.md" -Content $skillContent
 
@@ -269,9 +207,10 @@ if ($PluginName) {
 # ==========================================
 # 3. CRIACAO DOS ARQUIVOS DO WORKSPACE (.CODE-WORKSPACE)
 # ==========================================
+$cleanFileName = $ProjectName.ToLower().Replace(" ", "_")
+
 if ($Encapsulated) {
     Write-Host "`n[WORKSPACE] 3. Gerando arquivo de Workspace da IDE..." -ForegroundColor Blue
-    $cleanFileName = $ProjectName.ToLower().Replace(" ", "_")
     
     $workspaceContent = @(
         "{",
@@ -319,51 +258,80 @@ if ($SkillsPack -ne "none") {
 }
 
 # ==========================================
-# 5. CONFIGURACAO DE VERSIONAMENTO (GIT)
+# 5. CONFIGURACAO DE VERSIONAMENTO (GIT) E READMES
 # ==========================================
 if ($GitInit) {
-    Write-Host "`n[GIT] 5. Inicializando repositorio Git..." -ForegroundColor Blue
+    Write-Host "`n[GIT] 5. Inicializando repositorio Git e gerando documentacao inicial..." -ForegroundColor Blue
     
     if ($Encapsulated) {
-        # Git isolado na pasta .agents
+        # 1. README Global na Raiz
+        $rootReadme = @(
+            "# Workspace - $ProjectName",
+            "",
+            "Este workspace esta estruturado de forma encapsulada no padrao Google Antigravity.",
+            "",
+            "## Estrutura de Pastas",
+            "- \`.agents/\`: Diretrizes, regras, plugins e skills que orientam o Agente de IA.",
+            "- \`.projeto/\`: Arquivos de codigo-fonte reais do projeto.",
+            "",
+            "Para abrir de forma integrada na IDE, clique duas vezes no arquivo **${cleanFileName}.code-workspace**."
+        ) -join [Environment]::NewLine
+        Create-If-Not-Exists -Path "README.md" -Content $rootReadme
+
+        # 2. Git isolado na pasta .agents
         Write-Host "  Inicializando Git na pasta $agentsDir..." -ForegroundColor Cyan
         & {
             $pwd = Get-Location
             Set-Location "$agentsDir"
             git init
             Create-If-Not-Exists -Path ".gitignore" -Content (@("node_modules/", "*.log", ".DS_Store") -join [Environment]::NewLine)
+            
+            $agentsReadme = @(
+                "# Agents - $ProjectName",
+                "",
+                "Este diretorio contem a inteligencia e as regras de desenvolvimento que o seu Agente de IA le e obedece localmente.",
+                "",
+                "- \`rules/\`: Diretrizes e padroes arquiteturais.",
+                "- \`skills/\`: Instrucoes especificas para resolver tarefas complexas.",
+                "- \`hooks.json\`: Validacoes de ferramentas pre/pos execucao."
+            ) -join [Environment]::NewLine
+            Create-If-Not-Exists -Path "README.md" -Content $agentsReadme
+            
             Set-Location $pwd
         }
         
-        # Git isolado na pasta .projeto
+        # 3. Git isolado na pasta .projeto
         Write-Host "  Inicializando Git na pasta $projectDir..." -ForegroundColor Cyan
         & {
             $pwd = Get-Location
             Set-Location "$projectDir"
             git init
+            Create-If-Not-Exists -Path ".gitignore" -Content (@("node_modules/", "*.log", ".env", ".DS_Store") -join [Environment]::NewLine)
             
-            if ($techStack -eq "delphi") {
-                $gitignoreContent = @("__history/", "*.dcu", "*.identcache", "*.local", "*.~*", "*.stat", "Win32/", "Win64/", "Debug/", "Release/") -join [Environment]::NewLine
-            } elseif ($techStack -eq "python") {
-                $gitignoreContent = @(".venv/", "__pycache__/", "*.pyc", ".pytest_cache/", ".env", "*.log") -join [Environment]::NewLine
-            } else {
-                $gitignoreContent = @("node_modules/", "*.log", ".env", ".DS_Store") -join [Environment]::NewLine
-            }
-            Create-If-Not-Exists -Path ".gitignore" -Content $gitignoreContent
+            $projectReadme = @(
+                "# Projeto - $ProjectName",
+                "",
+                "Este diretorio contem os arquivos de codigo-fonte reais do seu projeto. Insira seus arquivos, estruturas e codigos diretamente aqui."
+            ) -join [Environment]::NewLine
+            Create-If-Not-Exists -Path "README.md" -Content $projectReadme
+            
             Set-Location $pwd
         }
     } else {
         # Git global na raiz
         git init
+        Create-If-Not-Exists -Path ".gitignore" -Content (@(".agents/plugins/*/node_modules/", "node_modules/", "*.log", ".env", ".DS_Store") -join [Environment]::NewLine)
         
-        if ($techStack -eq "delphi") {
-            $gitignoreContent = @(".agents/plugins/*/node_modules/", "__history/", "*.dcu", "*.identcache", "*.local", "*.~*", "*.stat", "Win32/", "Win64/", "Debug/", "Release/") -join [Environment]::NewLine
-        } elseif ($techStack -eq "python") {
-            $gitignoreContent = @(".agents/plugins/*/node_modules/", ".venv/", "__pycache__/", "*.pyc", ".pytest_cache/", ".env", "*.log") -join [Environment]::NewLine
-        } else {
-            $gitignoreContent = @(".agents/plugins/*/node_modules/", "node_modules/", "*.log", ".env", ".DS_Store") -join [Environment]::NewLine
-        }
-        Create-If-Not-Exists -Path ".gitignore" -Content $gitignoreContent
+        $globalReadme = @(
+            "# $ProjectName",
+            "",
+            "Este projeto utiliza a estrutura padrao Google Antigravity para guiar o desenvolvimento com Inteligencia Artificial.",
+            "",
+            "## Estrutura do Workspace",
+            "- \`.agents/\`: Contem as regras, hooks e habilidades do Agente de IA.",
+            "- O codigo-fonte e arquivos do projeto residem diretamente na raiz."
+        ) -join [Environment]::NewLine
+        Create-If-Not-Exists -Path "README.md" -Content $globalReadme
     }
 }
 

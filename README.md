@@ -17,41 +17,42 @@ curl -sSL https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/i
 ```
 *Dica: Você pode pular a interatividade fornecendo parâmetros diretamente:*
 ```bash
-curl -sSL https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.sh | bash -s -- --delphi --encapsulated --git --skills l
+curl -sSL https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.sh | bash -s -- --encapsulated --git --skills local
 ```
 
 ### 🪟 Windows PowerShell (Nativo)
 ```powershell
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.ps1" | Invoke-Expression
+$s = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.ps1"; & ([scriptblock]::Create($s)) -Interactive
 ```
-*Dica: Se quiser rodar com parâmetros específicos no Windows:*
+*Dica: Se quiser rodar passando argumentos diretamente no PowerShell:*
 ```powershell
-# Baixa e executa o script na sessão passando argumentos nomeados
-$script = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.ps1"
-Invoke-Expression "& { $script -Delphi -Encapsulated -GitInit -SkillsPack 'local' }"
+$s = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.ps1"; & ([scriptblock]::Create($s)) -Encapsulated -GitInit -SkillsPack 'local'
 ```
 
 ---
 
 ## 📐 Opções de Layout de Pastas
 
-A versão 2.0 da Fábrica oferece duas formas inteligentes de estruturar seu workspace:
+A Fábrica oferece duas formas inteligentes de estruturar seu workspace:
 
 ### 💼 Opção A: Estrutura Encapsulada (`--encapsulated` / `-Encapsulated`)
-Este layout é recomendado para manter as diretrizes do Agente (`.agents`) e o código fonte do projeto (`.projeto`) em pastas separadas, permitindo inclusive **versioná-los em repositórios Git independentes**.
+Este layout é recomendado para manter as diretrizes do Agente (`.agents`) e o código fonte do projeto (`.projeto`) em pastas separadas, permitindo **versioná-los em repositórios Git independentes**.
 
 ```
 [Pasta Raiz: Meu Projeto]
  ├── .agents/                          # Armazena todas as configurações do agente
  │    ├── .git/                        # Repositório Git do Agente (Isolado)
  │    ├── .gitignore
+ │    ├── README.md                    # Documentação do Agente
  │    ├── hooks.json
  │    ├── rules/
  │    └── skills/
  ├── .projeto/                         # Armazena apenas o código-fonte real do projeto
  │    ├── .git/                        # Repositório Git do Projeto (Isolado)
- │    ├── .gitignore                   # Regras de build específicas (Delphi, Python, etc.)
- │    └── [arquivos e pastas do seu projeto]
+ │    ├── .gitignore
+ │    ├── README.md                    # Documentação do Projeto
+ │    └── [arquivos e pastas do seu projeto diretamente aqui]
+ ├── README.md                         # Documentação Geral do Workspace
  └── meu_projeto.code-workspace        # Arquivo de Workspace do VS Code
 ```
 *Dica: Para trabalhar de forma integrada na IDE, basta abrir o arquivo `.code-workspace` gerado automaticamente na raiz!*
@@ -63,6 +64,7 @@ Um layout clássico onde o agente fica em uma subpasta oculta e o código-fonte 
 [Pasta Raiz: Meu Projeto]
  ├── .git/                             # Repositório Git Global
  ├── .gitignore
+ ├── README.md                         # Documentação Geral do Projeto
  ├── .agents/
  │    ├── hooks.json
  │    ├── rules/
@@ -76,17 +78,8 @@ Um layout clássico onde o agente fica em uma subpasta oculta e o código-fonte 
 
 Agora você pode puxar automaticamente o pacote de habilidades pré-configuradas do ecossistema:
 
-* **Local (`--skills l`)**: Roda `npx antigravity-awesome-skills --path .agents/skills` para baixar todas as skills diretamente no seu projeto local, facilitando o ajuste fino de cada uma delas.
-* **Global (`--skills g`)**: Executa `npx antigravity-awesome-skills` para uso e referência global.
-
----
-
-## 🛠️ Customização com Stacks Específicas
-
-A Fábrica vem equipada com suporte para geração inteligente de diretrizes e arquivos `.gitignore` específicos:
-
-* **`--delphi` | `-Delphi`**: Configura automaticamente regras rígidas de segurança contra SQL Injection, injeção de dependências, transações curtas no Firebird e o padrão mandatório de codificação **Windows-1252 (ANSI)** para arquivos fonte Delphi. Também gera um `.gitignore` que ignora pastas `__history`, `dcu` e arquivos temporários Delphi.
-* **`--python` | `-Python`**: Configura as melhores práticas da **PEP 8**, gerenciamento de ambientes virtuais (`.venv`) e tipagem estática (Type Hints). Gera um `.gitignore` que descarta `.venv`, `__pycache__` e cache de testes.
+* **Local (`--skills local`)**: Roda `npx antigravity-awesome-skills --path .agents/skills` para baixar todas as skills diretamente no seu projeto local, facilitando o ajuste fino de cada uma delas.
+* **Global (`--skills global`)**: Executa `npx antigravity-awesome-skills` para uso e referência global.
 
 ---
 
