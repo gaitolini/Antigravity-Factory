@@ -3,7 +3,7 @@
 [![Antigravity Core](https://img.shields.io/badge/Antigravity-Core-blueviolet?style=for-the-badge)](https://github.com/gaitolini/antigravity-factory)
 [![OS Support](https://img.shields.io/badge/OS-Windows%20%7C%20Linux%20%7C%20macOS-blue?style=for-the-badge)](#)
 
-Uma ferramenta automatizada e de alto desempenho projetada para inicializar instantaneamente a estrutura padrão do **Google Antigravity** em novos projetos. Com um único comando, configure regras personalizadas, skills e bundles de plugins otimizados para guiar seus agentes de Inteligência Artificial de forma precisa e eficiente.
+Uma ferramenta automatizada e de alto desempenho projetada para inicializar instantaneamente a estrutura padrão do **Google Antigravity** em novos projetos. Com suporte a versionamento Git isolado, estruturas encapsuladas organizadas por espaços de trabalho e instalação direta de pacotes de skills.
 
 ---
 
@@ -17,60 +17,76 @@ curl -sSL https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/i
 ```
 *Dica: Você pode pular a interatividade fornecendo parâmetros diretamente:*
 ```bash
-curl -sSL https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.sh | bash -s -- --delphi --plugin meu-erp
+curl -sSL https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.sh | bash -s -- --delphi --encapsulated --git --skills l
 ```
 
 ### 🪟 Windows PowerShell (Nativo)
 ```powershell
 Invoke-RestMethod -Uri "https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.ps1" | Invoke-Expression
 ```
-*Dica: Se quiser rodar com parâmetros específicos:*
+*Dica: Se quiser rodar com parâmetros específicos no Windows:*
 ```powershell
 # Baixa e executa o script na sessão passando argumentos nomeados
 $script = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/gaitolini/antigravity-factory/main/init_antigravity.ps1"
-Invoke-Expression "& { $script -Delphi -PluginName 'meu-erp' }"
+Invoke-Expression "& { $script -Delphi -Encapsulated -GitInit -SkillsPack 'local' }"
 ```
 
 ---
 
-## 📁 Entendendo a Estrutura `.agents/` Gerada
+## 📐 Opções de Layout de Pastas
 
-A pasta oculta `.agents/` no diretório raiz é o núcleo de customização local do Antigravity. O script cria o seguinte layout inteligente:
+A versão 2.0 da Fábrica oferece duas formas inteligentes de estruturar seu workspace:
+
+### 💼 Opção A: Estrutura Encapsulada (`--encapsulated` / `-Encapsulated`)
+Este layout é recomendado para manter as diretrizes do Agente (`.agents`) e o código fonte do projeto (`.projeto`) em pastas separadas, permitindo inclusive **versioná-los em repositórios Git independentes**.
 
 ```
-[Diretório Raiz do Projeto]
- └── .agents/
-      ├── hooks.json                     # Interceptadores globais de execução
-      ├── rules/
-      │    └── regras_projeto.md         # Diretrizes de estilo e arquitetura
-      ├── skills/
-      │    └── core-skill/
-      │         └── SKILL.md             # Instruções específicas para tarefas complexas
-      └── plugins/                       # (Opcional) Extensões agrupadas
-           └── [nome-do-plugin]/
-                ├── plugin.json          # Metadados e manifesto do plugin
-                ├── mcp_config.json      # Configuração local de servidores MCP
-                ├── hooks.json           # Hooks específicos deste plugin
-                └── sidecars/
-                     └── exemplo/
-                          └── sidecar.json # Tarefas automáticas em background (e.g. compilação)
+[Pasta Raiz: Meu Projeto]
+ ├── .agents/                          # Armazena todas as configurações do agente
+ │    ├── .git/                        # Repositório Git do Agente (Isolado)
+ │    ├── .gitignore
+ │    ├── hooks.json
+ │    ├── rules/
+ │    └── skills/
+ ├── .projeto/                         # Armazena apenas o código-fonte real do projeto
+ │    ├── .git/                        # Repositório Git do Projeto (Isolado)
+ │    ├── .gitignore                   # Regras de build específicas (Delphi, Python, etc.)
+ │    └── [arquivos e pastas do seu projeto]
+ └── meu_projeto.code-workspace        # Arquivo de Workspace do VS Code
+```
+*Dica: Para trabalhar de forma integrada na IDE, basta abrir o arquivo `.code-workspace` gerado automaticamente na raiz!*
+
+### 🌍 Opção B: Estrutura Global / Plana (Padrão)
+Um layout clássico onde o agente fica em uma subpasta oculta e o código-fonte do projeto reside diretamente na raiz:
+
+```
+[Pasta Raiz: Meu Projeto]
+ ├── .git/                             # Repositório Git Global
+ ├── .gitignore
+ ├── .agents/
+ │    ├── hooks.json
+ │    ├── rules/
+ │    └── skills/
+ └── [arquivos e pastas do seu projeto diretamente na raiz]
 ```
 
-### 🧩 Componentes do Ecossistema
+---
 
-1. **`rules/`**: Arquivos Markdown com restrições e guias arquiteturais. O Agente de IA consome essas regras dinamicamente a cada turno para garantir conformidade de estilo (por exemplo, obrigando a codificação de arquivos Delphi em Windows-1252 ANSI).
-2. **`skills/`**: Habilidades personalizadas que ampliam o raciocínio do Agente. Cada pasta de skill contém um `SKILL.md` com cabeçalho YAML (`name` e `description`). O Agente lê a descrição no início do chat e aciona as instruções da skill apenas quando necessário.
-3. **`hooks.json`**: Permite rodar comandos personalizados de validação (como linters, testes de compilação ou checagens de segurança) antes ou depois que o Agente utiliza suas ferramentas.
-4. **`plugins/`**: Super-pacotes modulares. Permitem que você distribua Skills, Rules, conexões de servidores MCP (`mcp_config.json`) e Sidecars em um único diretório isolado.
+## 📦 Integração com o `antigravity-awesome-skills`
+
+Agora você pode puxar automaticamente o pacote de habilidades pré-configuradas do ecossistema:
+
+* **Local (`--skills l`)**: Roda `npx antigravity-awesome-skills --path .agents/skills` para baixar todas as skills diretamente no seu projeto local, facilitando o ajuste fino de cada uma delas.
+* **Global (`--skills g`)**: Executa `npx antigravity-awesome-skills` para uso e referência global.
 
 ---
 
 ## 🛠️ Customização com Stacks Específicas
 
-A Fábrica vem equipada com suporte para geração inteligente de diretrizes baseadas na sua tecnologia principal:
+A Fábrica vem equipada com suporte para geração inteligente de diretrizes e arquivos `.gitignore` específicos:
 
-* **`--delphi` | `-Delphi`**: Configura automaticamente regras rígidas de segurança contra SQL Injection, injeção de dependências, injeção de transações curtas no Firebird e o padrão mandatório de codificação **Windows-1252 (ANSI)** para arquivos fonte Delphi.
-* **`--python` | `-Python`**: Configura as melhores práticas da **PEP 8**, gerenciamento de ambientes virtuais (`.venv`) e tipagem estática (Type Hints).
+* **`--delphi` | `-Delphi`**: Configura automaticamente regras rígidas de segurança contra SQL Injection, injeção de dependências, transações curtas no Firebird e o padrão mandatório de codificação **Windows-1252 (ANSI)** para arquivos fonte Delphi. Também gera um `.gitignore` que ignora pastas `__history`, `dcu` e arquivos temporários Delphi.
+* **`--python` | `-Python`**: Configura as melhores práticas da **PEP 8**, gerenciamento de ambientes virtuais (`.venv`) e tipagem estática (Type Hints). Gera um `.gitignore` que descarta `.venv`, `__pycache__` e cache de testes.
 
 ---
 
